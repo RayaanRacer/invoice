@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Cash Invoice</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+
+        .invoice-container {
+            border: 1px solid #000;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .form-section {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="text-center my-4">Generate Invoice</h1>
+        <form id="invoiceForm">
+            <!-- Pharmacy & Patient Details -->
+            <div class="form-section">
+                <h4>Pharmacy & Patient Details</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="pharmacyName" class="form-label">Pharmacy Name:</label>
+                        <input type="text" id="pharmacyName" class="form-control" value="SHINE PHARMACY">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="patientName" class="form-label">Patient Name:</label>
+                        <input type="text" id="patientName" class="form-control" value="MR. RAM ASAREY">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="pharmacyAddress" class="form-label">Pharmacy Address:</label>
+                        <input type="text" id="pharmacyAddress" class="form-control"
+                            value="JUNABGANJ TIRAHA BANTHRA, LUCKNOW">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="patientAddress" class="form-label">Patient Address:</label>
+                        <input type="text" id="patientAddress" class="form-control" value="HARDOI">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="pharmacyAddress1" class="form-label">Pharmacy Address 2:</label>
+                        <input type="text" id="pharmacyAddress1" class="form-control"
+                            value="JUNABGANJ TIRAHA BANTHRA, LUCKNOW">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="pharmacyPhoneNumber" class="form-label">Pharmacy Phone Number:</label>
+                        <input type="tel" id="pharmacyPhoneNumber" class="form-control" value="9936000032">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="patientPhoneNumber" class="form-label">Patient Phone Number:</label>
+                        <input type="tel" id="patientPhoneNumber" class="form-control" value="9936000032">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="pharmacyEmail" class="form-label">Pharmacy Email:</label>
+                        <input type="tel" id="pharmacyEmail" class="form-control" value="hospital@gmail.com">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="patientEmail" class="form-label">Patient Email:</label>
+                        <input type="email" id="patientEmail" class="form-control" value="hospital@gmail.com">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="doctorName" class="form-label">Doctor Name:</label>
+                        <input type="text" id="doctorName" class="form-control" value="Dr SM Mishra">
+                    </div>
+                </div>
+            </div>
+            <!-- Invoice Details -->
+            <div class="form-section">
+                <h4>Invoice Details</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="invoiceDate" class="form-label">Date:</label>
+                        <input type="date" id="invoiceDate" class="form-control" value="2024-02-15">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="invoiceNumber" class="form-label">Invoice Number:</label>
+                        <input type="text" id="invoiceNumber" class="form-control" value="T000701">
+                    </div>
+                </div>
+            </div>
+            <!-- Product Details -->
+            <div class="form-section">
+                <h4>Products</h4>
+                <table class="table table-bordered" id="productTable">
+                    <thead>
+                        <tr>
+                            <th>SN.</th>
+                            <th>Product Name</th>
+                            <th>Pack</th>
+                            <th>Batch</th>
+                            <th>Exp.</th>
+                            <th>Qty</th>
+                            <th>MRP</th>
+                            <th>Amount</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Initial Product Row -->
+                        <tr>
+                            <td>1</td>
+                            <td><input type="text" class="form-control" value="DISPOVAN SYRINGE 5ML"></td>
+                            <td><input type="text" class="form-control" value="1"></td>
+                            <td><input type="text" class="form-control" value="8524128D"></td>
+                            <td><input type="text" class="form-control" value="2/25"></td>
+                            <td><input type="number" class="form-control" value="3"></td>
+                            <td><input type="text" class="form-control" value="8.50"></td>
+                            <td><input type="text" class="form-control" value="25.50"></td>
+                            <td><button type="button" class="btn btn-danger btn-sm remove-row">Remove</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button type="button" id="addRow" class="btn btn-primary">Add Row</button>
+            </div>
+            <div class="row my-2">
+                <div class="col-md-6">
+                    <label for="gstData" class="form-label">GST Data:</label>
+                    <input type="text" id="gstData" class="form-control" value="">
+                </div>
+                <div class="col-md-6">
+                    <label for="total" class="form-label">Total C / F:</label>
+                    <input type="text" id="total" class="form-control" value="">
+                </div>
+                <div class="col-md-6">
+                    <label for="grandTotal" class="form-label">Grand Total:</label>
+                    <input type="text" id="grandTotal" class="form-control" value="">
+                </div>
+            </div>
+            <!-- Submit Button -->
+            <div class="text-center">
+                <button type="submit" class="btn btn-success">Generate Invoice PDF</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById("addRow").addEventListener("click", function () {
+            const table = document.getElementById("productTable").querySelector("tbody");
+            const row = `
+                <tr>
+                    <td>${table.rows.length + 1}</td>
+                    <td><input type="text" class="form-control"></td>
+                    <td><input type="text" class="form-control"></td>
+                    <td><input type="text" class="form-control"></td>
+                    <td><input type="text" class="form-control"></td>
+                    <td><input type="text" class="form-control"></td>
+                    <td><input type="text" class="form-control"></td>
+                    <td><input type="text" class="form-control"></td>
+                    <td><button type="button" class="btn btn-danger btn-sm remove-row">Remove</button></td>
+                </tr>`;
+            table.insertAdjacentHTML("beforeend", row);
+        });
+
+        document.addEventListener("click", function (event) {
+            if (event.target.classList.contains("remove-row")) {
+                event.target.closest("tr").remove();
+            }
+        });
+
+
+        document.getElementById("invoiceForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Get form data
+            const pharmacyName = document.getElementById("pharmacyName").value.toUpperCase(); // Convert to uppercase
+            const pharmacyAddress = document.getElementById("pharmacyAddress").value;
+            const pharmacyAddress2 = document.getElementById("pharmacyAddress1").value;
+            const pharmacyEmail = document.getElementById("pharmacyEmail").value;
+            const pharmacyPhone = document.getElementById("pharmacyPhoneNumber").value;
+            const patientName = document.getElementById("patientName").value;
+            const patientAddress = document.getElementById("patientAddress").value;
+            const patientEmail = document.getElementById("patientEmail").value;
+            const patientPhone = document.getElementById("patientPhoneNumber").value;
+            let invoiceDate = document.getElementById("invoiceDate").value;
+            const inputDate = invoiceDate; // Format: yyyy-mm-dd
+            const [year, month, day] = inputDate.split("-");
+            invoiceDate = `${day}/${month}/${year}`;
+            const invoiceNumber = document.getElementById("invoiceNumber").value;
+            const gstData = document.getElementById("gstData").value;
+            const total = document.getElementById("total").value;
+            const grandTotal = document.getElementById("grandTotal").value;
+            const doctorName = document.getElementById("doctorName").value;
+
+            // Starting Y position for content
+            let y = 10;
+
+            // Add Pharmacy Name in Larger Font
+            doc.setFontSize(16); // Larger font size
+            doc.text(pharmacyName, 15, y);
+            y += 8; // Adjust spacing
+
+            // Add Other Pharmacy Details in Smaller Font
+            doc.setFontSize(10); // Smaller font size
+            doc.text(`Address: ${pharmacyAddress}`, 15, y);
+            y += 5;
+            if (pharmacyAddress2) {
+                doc.text(pharmacyAddress2, 15, y);
+                y += 5;
+            }
+            doc.text(`Email: ${pharmacyEmail}`, 15, y);
+            y += 5;
+            doc.text(`Phone: ${pharmacyPhone}`, 15, y);
+            y += 8;
+
+            // Add Patient Details
+            doc.setFontSize(10); // Continue with smaller font
+            // Set font for "Patient Name" (bold)
+            doc.setFont("helvetica", "bold");
+            doc.text("Patient Name: ", 120, 10); // Bold heading
+
+            // Set font for patientName (normal)
+            doc.setFont("helvetica", "normal");
+            doc.text(patientName, 150, 10); // Normal text
+
+            y += 5;
+
+            // Repeat for "Patient Address"
+            doc.setFont("helvetica", "bold");
+            doc.text("Patient Address: ", 120, 15);
+
+            doc.setFont("helvetica", "normal");
+            doc.text(patientAddress, 150, 15);
+
+            y += 5;
+
+            // Repeat for "Patient Email"
+            doc.setFont("helvetica", "bold");
+            doc.text("Patient Email: ", 120, 20);
+
+            doc.setFont("helvetica", "normal");
+            doc.text(patientEmail, 150, 20);
+
+            y += 5;
+
+            // Repeat for "Patient Phone"
+            doc.setFont("helvetica", "bold");
+            doc.text("Patient Phone: ", 120, 25);
+
+            doc.setFont("helvetica", "normal");
+            doc.text(patientPhone, 150, 25);
+
+            y += 5;
+            doc.setFont("helvetica", "bold");
+            doc.text("Doctor Name: ", 120, 30);
+
+            doc.setFont("helvetica", "normal");
+            doc.text(doctorName, 150, 30);
+
+            y += 8;
+
+            // Add a bordered div-like rectangle
+            const rectWidth = doc.internal.pageSize.width - 20; // Full width with some margin
+            const rectHeight = 15; // Height of the rectangle
+            const rectX = 10; // Starting X coordinate
+            const rectY = 40; // Starting Y coordinate (use current y position)
+
+            // Draw the rectangle
+            doc.rect(rectX, rectY, rectWidth, rectHeight);
+
+            // Add text in bold at the center
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(14);
+            doc.text("| CASH INVOICE |", rectX + rectWidth / 2, rectY + rectHeight / 2, {
+                align: "center",
+            });
+
+            // Add date and invoice number at the right
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(10);
+            doc.text(`Invoice Date: ${invoiceDate}`, 140, 45);
+            y += 5;
+            doc.text(`Invoice Number: ${invoiceNumber}`, 140, 50);
+            y += 10;
+
+            y = 60;
+
+            // Add Table Header
+            const startX = 10;
+            const colWidths = [10, 40, 20, 30, 20, 20, 20, 30]; // Define column widths
+            let currentX = startX;
+
+            doc.setFontSize(10); // Table header font size
+            doc.setFont("helvetica", "bold");
+            doc.text("SN.", currentX + 2, y + 5);
+            currentX += colWidths[0];
+            doc.text("Product Name", currentX + 2, y + 5);
+            currentX += colWidths[1];
+            doc.text("Pack", currentX + 2, y + 5);
+            currentX += colWidths[2];
+            doc.text("Batch", currentX + 2, y + 5);
+            currentX += colWidths[3];
+            doc.text("Exp.", currentX + 2, y + 5);
+            currentX += colWidths[4];
+            doc.text("Qty", currentX + 2, y + 5);
+            currentX += colWidths[5];
+            doc.text("MRP", currentX + 2, y + 5);
+            currentX += colWidths[6];
+            doc.text("Amount", currentX + 2, y + 5);
+            doc.setFont("helvetica", "normal");
+            // Draw header borders
+            let headerY = y;
+            let rowHeight = 10;
+            currentX = startX;
+            colWidths.forEach((width) => {
+                doc.rect(currentX, headerY, width, rowHeight);
+                currentX += width;
+            });
+
+            y += rowHeight;
+
+            // Get Product Details
+            const tableRows = document.querySelectorAll("#productTable tbody tr");
+            doc.setFontSize(7);
+            tableRows.forEach((row, index) => {
+                currentX = startX;
+                const columns = row.querySelectorAll("td input");
+                const sn = (index + 1).toString();
+                const productName = columns[0].value;
+                const pack = columns[1].value;
+                const batch = columns[2].value;
+                const exp = columns[3].value;
+                const qty = columns[4].value;
+                const mrp = columns[5].value;
+                const amount = columns[6].value;
+
+                // Add text data
+                doc.text(sn, currentX + 2, y + 5);
+                currentX += colWidths[0];
+                doc.text(productName, currentX + 2, y + 5);
+                currentX += colWidths[1];
+                doc.text(pack, currentX + 2, y + 5);
+                currentX += colWidths[2];
+                doc.text(batch, currentX + 2, y + 5);
+                currentX += colWidths[3];
+                doc.text(exp, currentX + 2, y + 5);
+                currentX += colWidths[4];
+                doc.text(qty, currentX + 2, y + 5);
+                currentX += colWidths[5];
+                doc.text(mrp, currentX + 2, y + 5);
+                currentX += colWidths[6];
+                doc.text(amount, currentX + 2, y + 5);
+
+                // Draw row borders
+                currentX = startX;
+                // colWidths.forEach((width) => {
+                //     doc.rect(currentX, y, width, rowHeight);
+                //     currentX += width;
+                // });
+
+                y += rowHeight;
+            });
+
+            // Final Y position after the table rows
+            const finalY = y + 10;
+
+            // GST Row Properties
+            const rectWidthG = doc.internal.pageSize.width - 20; // Full width with some margin
+            const rectHeightG = 10; // Height of the rectangle
+            const rectXG = 10; // Starting X coordinate
+            const rectYG = finalY + 10; // Positioned below the table
+
+            // Draw the entire bordered row
+            doc.rect(rectXG, rectYG, rectWidthG, rectHeightG);
+
+            // GST Section (80% of the width)
+            const gstWidth = rectWidthG * 0.8;
+            doc.rect(rectXG, rectYG, gstWidth, rectHeightG); // Draw left section border
+
+            // Text inside the GST Section
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(8);
+            const gstText = `${gstData || 'N/A'}`; // Example GST field from the form
+            doc.text(gstText, rectXG + 5, rectYG + rectHeightG / 2 + 2); // Add text slightly vertically aligned
+
+            // Total Amount Section (20% of the width)
+            const totalAmountX = rectXG + gstWidth; // Start after GST section
+            const totalAmountWidth = rectWidthG - gstWidth;
+
+            doc.rect(totalAmountX, rectYG, totalAmountWidth, rectHeightG); // Draw right section border
+
+            // Text inside the Total Amount Section
+            const totalAmountText = `Total C / F : Rs${total || '0.00'}`;
+            doc.text(
+                totalAmountText,
+                totalAmountX + totalAmountWidth / 2,
+                rectYG + rectHeightG / 2 + 2,
+                { align: "center" }
+            );
+
+
+            // footer
+
+            // Add the bordered div for Terms & Conditions and totals
+            const footerRectWidth = doc.internal.pageSize.width - 20; // Full width with some margin
+            const footerRectHeight = 30; // Height of the rectangle
+            const footerX = 10; // Starting X coordinate
+            const footerY = y + 20; // Starting Y coordinate (use current y position)
+
+            // Draw the rectangle
+            doc.rect(footerX, footerY, footerRectWidth, footerRectHeight);
+
+            // Define 80% and 20% split
+            const splitX = footerX + (footerRectWidth * 0.8); // X-coordinate for the split
+
+            // Add vertical border at 80% width
+            doc.line(splitX, footerY, splitX, footerY + footerRectHeight);
+
+            // Add Terms & Conditions
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(10);
+            doc.text("Terms & Conditions", footerX + 5, footerY + 15);
+
+            // Add For Pharmacy Name and Authority Signature
+            doc.setFont("helvetica", "normal");
+            doc.text(`For ${pharmacyName}`, footerX + 110, footerY + 15);
+            doc.text("Authority Signature", footerX + 120, footerY + 25);
+
+            // Add Grand Total text and value in 20% section
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(8)
+            doc.text("Grand Total:", splitX + 5, footerY + footerRectHeight - 5);
+            doc.text(`${grandTotal}`, splitX + 20, footerY + footerRectHeight - 5);
+
+            // Update y position for future content
+            y += footerRectHeight + 10;
+
+            // footer end
+
+            //complete page border
+            const pageWidth = 595.28; // A4 width in points
+            const pageHeight = 841.89; // A4 height in points
+            const margin = 5; // Margin for the border
+
+            // Draw a rectangle with the desired margins
+            doc.rect(10, 3, footerRectWidth, y + 8);
+            // end complete page border
+
+            // Save PDF
+            doc.save("invoice_with_table.pdf");
+        });
+    </script>
+
+</body>
+
+</html>
